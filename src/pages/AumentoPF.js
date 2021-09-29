@@ -16,7 +16,7 @@ export default function AumentoPF() {
 
     async function handleSend() {
         try {
-            const response = await api.post(`aumentoplano/${aumentoPF.nome}/${aumentoPF.cpf}/${aumentoPF.fone1}/${aumentoPF.observacao}/${aumentoPF.vendedor}/${aumentoPF.plano}`)
+            const response = await api.post(`aumentoplano/${aumentoPF.nome}/${aumentoPF.cpf}/${aumentoPF.fone1}/${aumentoPF.plano}/${aumentoPF.observacao}/${aumentoPF.vendedor}`)
             Alert.alert('Mensagem:', 'Enviado com sucesso');
             console.log(response.data);
         } catch (error) {
