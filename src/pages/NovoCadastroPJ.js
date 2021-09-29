@@ -50,7 +50,7 @@ export default function AumentoPJ() {
         referencia: '',
         complemento: '',
         plano: '',
-        gps: `${text}`,
+        gps: '',
         observacao: '',
         vendedor: '',
     })
@@ -73,22 +73,19 @@ export default function AumentoPJ() {
 
     }
 
-    let text = 'Waiting..';
-    if (errorMsg) {
-        text = errorMsg;
-    } else if (location) {
-        text = JSON.stringify(location);
-    }
 
     async function handleSend() {
-        bodyFormData.append('arquivos[]', {
-            uri: image.uri,
-            type: 'image/png',
-            name: image.uri.split('/').pop(),
-        });
-        console.log(bodyFormData)
+        console.log(image)
+        if (image) {
+            bodyFormData.append('arquivos[]', {
+                uri: image.uri,
+                type: 'image/png',
+                name: image.uri.split('/').pop(),
+            });
+        }
+
         try {
-            const response = await api.post(`novojuridica/${cadastroPJ.rsocial}/${cadastroPJ.nfantasia}/${cadastroPJ.cnpj}/${cadastroPJ.iestadual}/${cadastroPJ.nproprietario}/${cadastroPJ.fone1}/${cadastroPJ.fone2}/${cadastroPJ.email}/${cadastroPJ.endereco}/${cadastroPJ.referencia}/${cadastroPJ.complemento}/${cadastroPJ.plano}/${cadastroPJ.gps}/${cadastroPJ.observacao}/${cadastroPJ.vendedor}`, bodyFormData, {
+            const response = await api.post(`novojuridica/${cadastroPJ.rsocial}/${cadastroPJ.nfantasia}/${cadastroPJ.cnpj}/${cadastroPJ.iestadual}/${cadastroPJ.nproprietario}/${cadastroPJ.fone1}/${cadastroPJ.fone2}/${cadastroPJ.email}/${cadastroPJ.endereco}/${cadastroPJ.referencia}/${cadastroPJ.complemento}/${cadastroPJ.plano}/${cadastroPJ.gps}/${cadastroPJ.observacao}/${cadastroPJ.vendedor}`, image && bodyFormData, {
                 headers: {
 
                     'Content-Type': 'multipart/form-data',

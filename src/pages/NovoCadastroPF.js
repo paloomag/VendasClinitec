@@ -34,12 +34,11 @@ export default function NovoCadastroPF() {
         console.log(result);
 
         if (!result.cancelled) {
-            setImage(result.uri);
-            bodyFormData.append('image', result.uri);
+            setImage(result);
         }
     };
 
-    const [location, setLocation] = useState(null);
+    const [location, setLocation] = useState('');
     const [errorMsg, setErrorMsg] = useState(null);
     const [cadastroPF, setCadastroPF] = useState({
         nome: '',
@@ -54,7 +53,7 @@ export default function NovoCadastroPF() {
         referencia: '',
         complemento: '',
         plano: '',
-        gps: `${text}`,
+        gps: '',
         observacao: '',
         vendedor: '',
     })
@@ -76,18 +75,24 @@ export default function NovoCadastroPF() {
         }
 
     }
-    let text = 'Waiting..';
-    if (errorMsg) {
-        text = errorMsg;
-    } else if (location) {
-        text = JSON.stringify(location);
-    }
     async function handleSend() {
-        try {
-            const response = await api.post(`novofisica/${cadastroPF.nome}/${cadastroPF.rg}/${cadastroPF.cpf}/${cadastroPF.data}/${cadastroPF.mae}/${cadastroPF.fone1}/${cadastroPF.fone2}/${cadastroPF.email}/${cadastroPF.endereco}/${cadastroPF.referencia}/${cadastroPF.complemento}/${cadastroPF.plano}/${cadastroPF.gps}/${cadastroPF.observacao}/${cadastroPF.vendedor}`, {
-                data: bodyFormData,
-                headers: { "Content-Type": "multipart/form-data" },
+        console.log(image)
+        if (image) {
+            bodyFormData.append('arquivos[]', {
+                uri: image.uri,
+                type: 'image/png',
+                name: image.uri.split('/').pop(),
             });
+        }
+        try {
+            const response = await api.post(`novofisica/${cadastroPF.nome}/${cadastroPF.rg}/${cadastroPF.cpf}/${cadastroPF.data}/${cadastroPF.mae}/${cadastroPF.fone1}/${cadastroPF.fone2}/${cadastroPF.email}/${cadastroPF.endereco}/${cadastroPF.referencia}/${cadastroPF.complemento}/${cadastroPF.plano}/${cadastroPF.gps}/${cadastroPF.observacao}/${cadastroPF.vendedor}`, image && bodyFormData, {
+                headers: {
+
+                    'Content-Type': 'multipart/form-data',
+
+                }
+            });
+            console.log(response.data);
             Alert.alert('Mensagem:', "Dados enviados com sucesso!");
         } catch (error) {
             console.log(error);
@@ -239,7 +244,7 @@ export default function NovoCadastroPF() {
 
                     {image !== null &&
                         <View style={{ padding: 10 }}>
-                            <Image source={{ uri: image }} style={{ width: 80, height: 80 }} />
+                            <Image source={{ uri: image.uri }} style={{ width: 80, height: 80 }} />
                         </View>}
 
                     <TextInput
