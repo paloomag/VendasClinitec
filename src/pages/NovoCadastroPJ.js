@@ -206,6 +206,15 @@ export default function AumentoPJ() {
 
                     <TextInput
                         style={styles.input}
+                        placeholder="Plano"
+                        autoCorrect={false}
+                        autoCapitalize="none"
+                        value={cadastroPJ.plano}
+                        onChangeText={value => setCadastroPJ({ ...cadastroPJ, plano: value })}
+                    />
+
+                    <TextInput
+                        style={styles.input}
                         placeholder="Localização"
                         autoCorrect={false}
                         autoCapitalize="none"
@@ -251,14 +260,7 @@ export default function AumentoPJ() {
                         value={cadastroPJ.vendedor}
                         onChangeText={value => setCadastroPJ({ ...cadastroPJ, vendedor: value })}
                     />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Plano"
-                        autoCorrect={false}
-                        autoCapitalize="none"
-                        value={cadastroPJ.plano}
-                        onChangeText={value => setCadastroPJ({ ...cadastroPJ, plano: value })}
-                    />
+
                 </View>
 
                 <View style={styles.botaoView}>
