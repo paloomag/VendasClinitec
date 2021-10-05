@@ -1,40 +1,27 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
 import StatusBarColor from '../components/StatusBarColor';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
+import { MaskedTextInput } from "react-native-mask-text";
 import api from '../services/API';
 
 export default function NovoCadastroPF() {
 
-    const [image, setImage] = useState(null);
-    const [dataNasc, setDataNasc] = useState();
+    const [image, setImage] = useState([]);
     const bodyFormData = new FormData();
-
-
-    useEffect(() => {
-        (async () => {
-            if (Platform.OS !== 'web') {
-                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                if (status !== 'granted') {
-                    alert('Precisamos da permissão para fazer funcionar! x.x');
-                }
-            }
-        })();
-    }, []);
+    const [dataNasc, setDataNasc] = useState();
+    const [maskedValue, setMaskedValue] = useState("");
+    const [unMaskedValue, setUnmaskedValue] = useState("");
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: false,
             quality: 1,
         });
 
-        console.log(result);
-
         if (!result.cancelled) {
-            setImage(result);
+            setImage(arr => [...arr, result]);
         }
     };
 
@@ -76,16 +63,17 @@ export default function NovoCadastroPF() {
 
     }
     async function handleSend() {
-        console.log(image)
-        if (image) {
-            bodyFormData.append('arquivos[]', {
-                uri: image.uri,
-                type: 'image/png',
-                name: image.uri.split('/').pop(),
-            });
+        if (image.length > 0) {
+            image.map(item => {
+                bodyFormData.append('arquivos[]', {
+                    uri: item.uri,
+                    type: 'image/png',
+                    name: item.uri.split('/').pop(),
+                });
+            })
         }
         try {
-            const response = await api.post(`novofisica/${cadastroPF.nome}/${cadastroPF.rg}/${cadastroPF.cpf}/${cadastroPF.data}/${cadastroPF.mae}/${cadastroPF.fone1}/${cadastroPF.fone2}/${cadastroPF.email}/${cadastroPF.endereco}/${cadastroPF.referencia}/${cadastroPF.complemento}/${cadastroPF.plano}/${cadastroPF.gps}/${cadastroPF.observacao}/${cadastroPF.vendedor}`, image && bodyFormData, {
+            const response = await api.post(`novofisica/${cadastroPF.nome}/${cadastroPF.rg}/${cadastroPF.cpf}/${cadastroPF.data}/${cadastroPF.mae}/${cadastroPF.fone1}/${cadastroPF.fone2}/${cadastroPF.email}/${cadastroPF.endereco}/${cadastroPF.referencia}/${cadastroPF.complemento}/${cadastroPF.plano}/${cadastroPF.gps}/${cadastroPF.observacao}/${cadastroPF.vendedor}`, image.length > 0 && bodyFormData, {
                 headers: {
 
                     'Content-Type': 'multipart/form-data',
@@ -133,21 +121,19 @@ export default function NovoCadastroPF() {
                         value={cadastroPF.cpf}
                         onChangeText={value => setCadastroPF({ ...cadastroPF, cpf: value })}
                     />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Data de Nascimento"
-                        autoCorrect={false}
-                        autoCapitalize="none"
-                        dataDetectorTypes="calendarEvent"
-                        value={dataNasc}
-                        onChangeText={value => {
-                            setDataNasc(value);
-                            const nascimento = value.split('/').reverse().join('');
-                            console.log(nascimento)
-                            setCadastroPF({ ...cadastroPF, data: nascimento })
 
+                    <MaskedTextInput
+                        mask="99/99/9999"
+                        placeholder="Data de Nascimento"
+                        onChangeText={(text) => {
+                            setMaskedValue(text);
+                            const nascimento = text.split("/").reverse().join("");
+                            setCadastroPF({ ...cadastroPF, data: nascimento })
                         }}
+                        style={styles.input}
+                        keyboardType="numeric"
                     />
+
                     <TextInput
                         style={styles.input}
                         placeholder="Nome da Mãe"
@@ -242,10 +228,10 @@ export default function NovoCadastroPF() {
                         </TouchableOpacity>
                     </View>
 
-                    {image !== null &&
-                        <View style={{ padding: 10 }}>
-                            <Image source={{ uri: image.uri }} style={{ width: 80, height: 80 }} />
-                        </View>}
+                    {image.length > 0 &&
+                        <ScrollView horizontal style={{ padding: 10 }}>
+                            {image.map((item, index) => <Image key={index} source={{ uri: item.uri }} style={{ width: 80, height: 80, margin: 3 }} />)}
+                        </ScrollView>}
 
                     <TextInput
                         style={styles.input}

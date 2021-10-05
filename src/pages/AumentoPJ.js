@@ -5,7 +5,6 @@ import StatusBarColor from '../components/StatusBarColor'
 import api from '../services/API';
 
 export default function NovoCadastroPJ() {
-    /*     const navigation = useNavigation(); */
     const [aumentoPJ, setAumentoPJ] = useState({
         rsocial: '',
         cnpj: '',

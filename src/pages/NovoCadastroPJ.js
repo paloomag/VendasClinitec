@@ -1,4 +1,3 @@
-import { useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
 import { View, Text, KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
 import StatusBarColor from '../components/StatusBarColor';
@@ -7,36 +6,20 @@ import * as ImagePicker from 'expo-image-picker';
 import api from '../services/API';
 
 export default function AumentoPJ() {
-    const [image, setImage] = useState(null);
+    const [image, setImage] = useState([]);
     const bodyFormData = new FormData();
-
-    useEffect(() => {
-        (async () => {
-            if (Platform.OS !== 'web') {
-                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                if (status !== 'granted') {
-                    alert('Precisamos da permissão para fazer funcionar! x.x');
-                }
-            }
-        })();
-    }, []);
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: false,
             quality: 1,
         });
 
-
         if (!result.cancelled) {
-            setImage(result);
-            console.log(result);
+            setImage(arr => [...arr, result]);
+            console.log(image);
         }
     };
-
-    const [location, setLocation] = useState(null);
-    const [errorMsg, setErrorMsg] = useState(null);
     const [cadastroPJ, setCadastroPJ] = useState({
         rsocial: '',
         nfantasia: '',
@@ -76,14 +59,16 @@ export default function AumentoPJ() {
 
     async function handleSend() {
         console.log(image)
-        if (image) {
-            bodyFormData.append('arquivos[]', {
-                uri: image.uri,
-                type: 'image/png',
-                name: image.uri.split('/').pop(),
-            });
-        }
+        if (image.length > 0) {
+            image.map(item => {
+                bodyFormData.append('arquivos[]', {
+                    uri: item.uri,
+                    type: 'image/png',
+                    name: item.uri.split('/').pop(),
+                });
+            })
 
+        }
         try {
             const response = await api.post(`novojuridica/${cadastroPJ.rsocial}/${cadastroPJ.nfantasia}/${cadastroPJ.cnpj}/${cadastroPJ.iestadual}/${cadastroPJ.nproprietario}/${cadastroPJ.fone1}/${cadastroPJ.fone2}/${cadastroPJ.email}/${cadastroPJ.endereco}/${cadastroPJ.referencia}/${cadastroPJ.complemento}/${cadastroPJ.plano}/${cadastroPJ.gps}/${cadastroPJ.observacao}/${cadastroPJ.vendedor}`, image && bodyFormData, {
                 headers: {
@@ -236,10 +221,10 @@ export default function AumentoPJ() {
                         </TouchableOpacity>
                     </View>
 
-                    {image !== null &&
-                        <View style={{ padding: 10 }}>
-                            <Image source={{ uri: image.uri }} style={{ width: 80, height: 80 }} />
-                        </View>}
+                    {image.length > 0 &&
+                        <ScrollView horizontal style={{ padding: 10 }}>
+                            {image.map((item, index) => <Image key={index} source={{ uri: item.uri }} style={{ width: 80, height: 80, margin: 3 }} />)}
+                        </ScrollView>}
 
                     <TextInput
                         style={styles.input}
