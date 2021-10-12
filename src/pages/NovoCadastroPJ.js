@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, Text, KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert, Image, Modal, ActivityIndicator } from 'react-native';
 import StatusBarColor from '../components/StatusBarColor';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import api from '../services/API';
+import { useNavigation } from '@react-navigation/native';
+
 
 export default function AumentoPJ() {
     const [image, setImage] = useState([]);
     const bodyFormData = new FormData();
+    const [loanding, setLoanding] = useState(false);
+    const navigation = useNavigation();
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -69,6 +73,7 @@ export default function AumentoPJ() {
             })
 
         }
+        setLoanding(true);
         try {
             const response = await api.post(`novojuridica/${cadastroPJ.rsocial}/${cadastroPJ.nfantasia}/${cadastroPJ.cnpj}/${cadastroPJ.iestadual}/${cadastroPJ.nproprietario}/${cadastroPJ.fone1}/${cadastroPJ.fone2}/${cadastroPJ.email}/${cadastroPJ.endereco}/${cadastroPJ.referencia}/${cadastroPJ.complemento}/${cadastroPJ.plano}/${cadastroPJ.gps}/${cadastroPJ.observacao}/${cadastroPJ.vendedor}`, image && bodyFormData, {
                 headers: {
@@ -81,7 +86,12 @@ export default function AumentoPJ() {
             Alert.alert('Mensagem:', "Dados enviados com sucesso!");
         } catch (error) {
             console.log(error);
+            setLoanding(false);
             Alert.alert('Ops, algo deu errado!', 'Tente mais tarde!');
+        } finally {
+            Alert.alert('Mensagem:', "Dados enviados com sucesso!");
+            setLoanding(false);
+            navigation.goBack();
         }
     }
 
@@ -256,6 +266,13 @@ export default function AumentoPJ() {
                         <Text style={styles.textobotao}>CADASTRAR</Text>
                     </TouchableOpacity>
                 </View>
+
+                <Modal visible={loanding} transparent>
+                    <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center' }}>
+                        <ActivityIndicator size="large" color="orange" />
+                    </View>
+                </Modal>
+
             </ScrollView>
         </KeyboardAvoidingView>
     )

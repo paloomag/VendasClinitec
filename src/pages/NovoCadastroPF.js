@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, Text, KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert, Image, Modal, ActivityIndicator } from 'react-native';
 import StatusBarColor from '../components/StatusBarColor';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import { MaskedTextInput } from "react-native-mask-text";
 import api from '../services/API';
+import { useNavigation } from '@react-navigation/native';
 
 export default function NovoCadastroPF() {
 
@@ -13,6 +14,9 @@ export default function NovoCadastroPF() {
     const [dataNasc, setDataNasc] = useState();
     const [maskedValue, setMaskedValue] = useState("");
     const [unMaskedValue, setUnmaskedValue] = useState("");
+    const [loanding, setLoanding] = useState(false);
+    const navigation = useNavigation();
+
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -72,6 +76,7 @@ export default function NovoCadastroPF() {
                 });
             })
         }
+        setLoanding(true);
         try {
             const response = await api.post(`novofisica/${cadastroPF.nome}/${cadastroPF.rg}/${cadastroPF.cpf}/${cadastroPF.data}/${cadastroPF.mae}/${cadastroPF.fone1}/${cadastroPF.fone2}/${cadastroPF.email}/${cadastroPF.endereco}/${cadastroPF.referencia}/${cadastroPF.complemento}/${cadastroPF.plano}/${cadastroPF.gps}/${cadastroPF.observacao}/${cadastroPF.vendedor}`, image.length > 0 && bodyFormData, {
                 headers: {
@@ -84,7 +89,12 @@ export default function NovoCadastroPF() {
             Alert.alert('Mensagem:', "Dados enviados com sucesso!");
         } catch (error) {
             console.log(error);
+            setLoanding(false);
             Alert.alert('Ops, algo deu errado!', 'Tente mais tarde!');
+        } finally {
+            Alert.alert('Mensagem:', "Dados enviados com sucesso!");
+            setLoanding(false);
+            navigation.goBack();
         }
     }
     return (
@@ -261,6 +271,12 @@ export default function NovoCadastroPF() {
                         <Text style={styles.textobotao}>CADASTRAR</Text>
                     </TouchableOpacity>
                 </View>
+
+                <Modal visible={loanding} transparent>
+                    <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center' }}>
+                        <ActivityIndicator size="large" color="orange" />
+                    </View>
+                </Modal>
             </ScrollView>
         </KeyboardAvoidingView>
     )

@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
-import { View, Text, KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert, Modal, ActivityIndicator } from 'react-native';
 import StatusBarColor from '../components/StatusBarColor'
 import api from '../services/API';
 
@@ -12,19 +12,26 @@ export default function AumentoPF() {
         observacao: '',
         vendedor: '',
         plano: '',
-    })
+    });
+    const [loanding, setLoanding] = useState(false);
+    const navigation = useNavigation();
 
     async function handleSend() {
+        setLoanding(true);
         try {
             const response = await api.post(`aumentoplano/${aumentoPF.nome}/${aumentoPF.cpf}/${aumentoPF.fone1}/${aumentoPF.plano}/${aumentoPF.observacao}/${aumentoPF.vendedor}`)
             Alert.alert('Mensagem:', 'Enviado com sucesso');
             console.log(response.data);
         } catch (error) {
             console.log(error);
+            setLoanding(false);
             Alert.alert('Ops, algo deu errado!', 'Tente mais tarde!');
+        } finally {
+            Alert.alert('Mensagem:', "Dados enviados com sucesso!");
+            setLoanding(false);
+            navigation.goBack();
         }
     }
-
     return (
         <KeyboardAvoidingView style={styles.backgroud}>
             <ScrollView style={{ width: '100%' }}>
@@ -103,6 +110,11 @@ export default function AumentoPF() {
                         <Text style={styles.textobotao}>CADASTRAR</Text>
                     </TouchableOpacity>
                 </View>
+                <Modal visible={loanding} transparent>
+                    <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center' }}>
+                        <ActivityIndicator size="large" color="orange" />
+                    </View>
+                </Modal>
             </ScrollView>
         </KeyboardAvoidingView>
     )

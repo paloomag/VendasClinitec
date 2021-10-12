@@ -1,8 +1,8 @@
-/* import { useNavigation } from '@react-navigation/native'; */
 import React, { useState, useEffect } from 'react';
-import { View, Text, KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator, Modal } from 'react-native';
 import StatusBarColor from '../components/StatusBarColor'
 import api from '../services/API';
+import { useNavigation } from '@react-navigation/native';
 
 export default function NovoCadastroPJ() {
     const [aumentoPJ, setAumentoPJ] = useState({
@@ -13,17 +13,24 @@ export default function NovoCadastroPJ() {
         vendedor: '',
         plano: '',
     })
+    const [loanding, setLoanding] = useState(false);
+    const navigation = useNavigation();
 
     async function handleSend() {
+        setLoanding(true);
         try {
             const response = await api.post(`aumentoplano/${aumentoPJ.rsocial}/${aumentoPJ.cnpj}/${aumentoPJ.fone1}/${aumentoPJ.plano}/${aumentoPJ.observacao}/${aumentoPJ.vendedor}`)
             Alert.alert('Mensagem:', 'Enviado com sucesso');
             console.log(response.data);
         } catch (error) {
             console.log(error);
+            setLoanding(false);
             Alert.alert('Ops, algo deu errado!', 'Tente mais tarde!');
+        } finally {
+            Alert.alert('Mensagem:', "Dados enviados com sucesso!");
+            setLoanding(false);
+            navigation.goBack();
         }
-
     }
 
     return (
@@ -103,6 +110,11 @@ export default function NovoCadastroPJ() {
                         <Text style={styles.textobotao}>CADASTRAR</Text>
                     </TouchableOpacity>
                 </View>
+                <Modal visible={loanding} transparent>
+                    <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center' }}>
+                        <ActivityIndicator size="large" color="orange" />
+                    </View>
+                </Modal>
             </ScrollView>
         </KeyboardAvoidingView>
     )
